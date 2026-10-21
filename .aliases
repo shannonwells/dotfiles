@@ -1,0 +1,17 @@
+# handy alias for read-only in vim
+alias view='vim -R'
+
+alias ls='ls --color=auto'
+alias ll='ls -lhA'
+alias lsd='ls -d .??*'
+
+alias xselin='xsel --clipboard --input'
+alias xselout='xsel --clipboard --output'
+# mac version uses pcopy/pbpaste
+
+
+alias pullor='git pull origin `parse_git_branch`'
+alias pullreb='git pull --rebase origin `parse_git_branch`'
+alias pushor='git push origin `parse_git_branch`'
+alias pushfor='git push --force-with-lease origin `parse_git_branch`'
+alias sudo="sudo ";

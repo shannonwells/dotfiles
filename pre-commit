@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# edit for your language of choice
+CHECK="ruff check "
+FIX="ruff check --fix "
+FILE_NAMES='\.(go)$'
+
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E $FILE_NAMES)
+function exit_err() { echo "❌ 💔" ; exit 1; }
+
+if [[ ! -z $FILES ]]
+then
+    echo "Examining $FILES"
+    echo $FILES | xargs $CHECK || exit_err
+    $CHECK || exit_err
+    echo $FILES | xargs git add
+    else
+    echo "nothing to do 😑"
+    exit 0
+fi
+echo "✅ 😇"

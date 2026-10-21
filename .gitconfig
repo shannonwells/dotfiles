@@ -1,0 +1,43 @@
+[user]
+	name = shannonwells
+	email = shannonwells@users.noreply.github.com
+[merge]
+	tool = diffmerge
+[mergetool "diffmerge"]
+	cmd = /Applications/DiffMerge.app/Contents/MacOS/DiffMerge "\"$PWD/$BASE\"" "\"$PWD/$LOCAL\""  "\"$PWD/$REMOTE\"" "\"$PWD/$MERGED\""   
+	keepTemporaries = false
+	trustExitCode = false
+	keepBackup = false
+[diff]
+    	tool = diffmerge
+[difftool "diffmerge"]
+	cmd = /Applications/p4merge.app/Contents/Resources/launchp4merge "\"$LOCAL\"" "\"$REMOTE\"" 
+[filter "lfs"]
+	clean = git-lfs clean %f
+	smudge = git-lfs smudge %f
+	required = true
+[alias]
+        alias = config --get-regexp alias
+        lll = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+        lol = log --graph --decorate --pretty=oneline --abbrev-commit
+        lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+        br = branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate
+        cm = commit
+        co = checkout
+        cob = checkout -b
+        last = log -1 HEAD --stat
+        st = status
+        pom = pull origin main
+        ftp = fetch -ftp
+        done = push origin HEAD
+        force = push origin --force-with-lease 
+        recent = for-each-ref --count=10 --sort=-committerdate refs/heads/ --format='%(refname:short)'
+        undo = reset HEAD~1 --mixed
+[mergetool]
+	keepBackup = true
+[core]
+	excludesfile = ~/.gitignore
+[push]
+	autoSetupRemote = true
+[init]
+	defaultBranch = main

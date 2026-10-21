@@ -1,0 +1,17 @@
+!#/usr/bin/env bash
+PACKAGES="clang curl digikam fail2ban gdebi-core gimp git gitlab-cli net-tools openssh-server python3 postgresql vim wget"
+for pkg in $PACKAGES; do sudo apt install $pkg ; done
+
+SNAPS="brave gsconnect htop docker slack steam webstorm"
+for app in $SNAPS ; do sudo snap install $app ; done
+
+## x-mail x-vpn passwd-mgr
+# MANUAL OR OTHER SEPARATE INSTALL:
+# bun
+# gog
+# <IDE>
+# nvm
+# pi
+# rust
+# tuple
+# zoom
