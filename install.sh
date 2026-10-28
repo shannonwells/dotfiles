@@ -21,7 +21,7 @@ test "${SHELL}" == `which zsh` \
     && echo "copying zsh dotfiles" \
     &&  cp -f "$RCFILES/zshrc" "$HOME/.zshrc"  \
     && cp -f "$RCFILES/zprofile" "$HOME/.zprofile" \
-test "${SHELL}" == `which bash` 
+test "${SHELL}" == `which bash` \
     && echo "copying bash dotfiles" \
     && cp -f "$RCFILES/bashrc" "$HOME/.bashrc"
 
