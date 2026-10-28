@@ -1,4 +1,4 @@
-;#!/usr/bin/env bash
+#!/usr/bin/env bash
 # Coder dotfiles entry point: maps this repo onto a fresh workspace's $HOME.
 set -euo pipefail
 
