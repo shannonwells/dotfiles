@@ -22,7 +22,7 @@ case $(basename $SHELL) in
     echo "copying zsh dotfiles" 
     echo "source $HOME/.zprofile" >> $HOME/.zshrc
 
-    for file in $(ls $RCFILES/z*) ; do cp -f $file $HOME/".$(basename $file)" ; done
+    for file in $(ls $RCFILES/z*) ; do cp -n $file $HOME/".$(basename $file)" ; done
     ;;
   bash)
     echo "copying bash dotfiles" \
