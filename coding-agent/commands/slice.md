@@ -16,8 +16,8 @@ Follow this sequence exactly. Do not skip steps or approval gates.
 **Step 0 — Slice recap**
 Before any work begins, orient the human to exactly what this slice covers.
 
-1. Locate the plan file: list `docs/stories/` and identify the active story directory. If exactly one exists, use it. If multiple exist, match against the slice name or story context. If none exist or none match, tell the human and ask which story this slice belongs to before continuing.
-2. Read `docs/stories/<slug>/plan.md` and find the section for this slice (match by name or number from `$ARGUMENTS`).
+1. Locate the plan file: resolve the stories root with the `story-location` skill, list it (excluding `archive/`), and identify the active story directory. If exactly one exists, use it. If multiple exist, match against the slice name or story context. If none exist or none match, tell the human and ask which story this slice belongs to before continuing.
+2. Read `<stories root>/<slug>/plan.md` and find the section for this slice (match by name or number from `$ARGUMENTS`).
 3. Present the recap to the human:
 
 > **Slice [N]: [name]**
@@ -67,7 +67,7 @@ the human and wait for approval before Step 4.
 
 **Step 4 — Plan update**
 
-After the commit, update `docs/stories/<slug>/plan.md` for this slice:
+After the commit, update `<stories root>/<slug>/plan.md` for this slice:
 
 1. Run `git log -1 --format="%h"` to get the commit hash. With no commit (verification-only
    slice), write `**Commit:** — (no code change)`.
@@ -81,13 +81,13 @@ Do not modify other slices' sections or the UAT checklist.
 
 If a `tracking-config` project memory exists, update this story's row in the live tracker README per the `tracking` skill's workloop checkpoints.
 
-**Step 5 — UAT checklist and PR prep (final slice only)**
-If this is the last slice in the plan, after the commit is approved:
+**Step 5 — UAT checklist and PR prep (final slice of the plan or of a PR)**
+If this is the last slice in the plan, or the last slice under a PR heading in the plan's Slice Plan, after the commit is approved:
 
-1. Present the full UAT checklist from `docs/stories/<slug>/plan.md` and ask the human to confirm all items.
-2. Once UAT is confirmed, invoke the `branching-model` skill and resolve this repo's `Release` field. State it on one line: `Release: <pull request | skill <name>> (<declared | detected | default>)`.
+1. Last slice in the plan only: present the full UAT checklist from `<stories root>/<slug>/plan.md` and ask the human to confirm all items. For the last slice of an earlier PR, skip this item.
+2. Once UAT is confirmed or skipped, invoke the `branching-model` skill and resolve this repo's `Release` field. State it on one line: `Release: <pull request | skill <name>> (<declared | detected | default>)`.
 3. **`Release: skill <name>`:** ask "Run `/<name>` now?" On a yes, invoke that skill and let it handle the release. The yes is the human's explicit approval for whatever that skill does, including any push. Skip the PR steps. Take the released ref (version or tag) from the skill's output, then from `git tag --points-at HEAD`, and otherwise ask the human.
-4. **`Release: pull request`:** before proposing the PR, run the repo's CI checks locally. Read whatever CI config the repo actually uses (e.g. `.github/workflows/`, `.gitlab-ci.yml`, a Jenkinsfile) for its lint, format, and test steps, or ask the human if none is detected. Resolve where they run from the `branching-model` skill's `Pre-PR CI` field. `in place` runs them in the current checkout, after `git status --porcelain` confirms nothing untracked or uncommitted that the tests could depend on; anything listed goes to the human before the checks run. `clean checkout` runs them in a throwaway worktree of the branch at `.claude/worktrees/ci-<branch>`, with dependencies installed from the lockfile, and removes it with `git worktree remove` once the checks finish, pass or fail. If a check fails, treat it like any other slice defect: send it back through coder (TDD) → verifier → human approval → a new commit, rather than patching it inline here. Once CI passes, invoke the `pr-description` skill to propose a PR title and description from the story's artifacts. Invoke the `pr-platform` skill and resolve this repo's PR platform by its rules. State the result on one line: `PR platform: <platform> (<declared | detected>), gh <available | unavailable>`. If it resolves to GitHub with `gh` available, offer to create the PR directly with `gh pr create`; otherwise, present the title and description for the human to paste into their platform.
+4. **`Release: pull request`:** before proposing the PR, run the repo's CI checks locally. Read whatever CI config the repo actually uses (e.g. `.github/workflows/`, `.gitlab-ci.yml`, a Jenkinsfile) for its lint, format, and test steps, or ask the human if none is detected. Resolve where they run from the `branching-model` skill's `Pre-PR CI` field. `in place` runs them in the current checkout, after `git status --porcelain` confirms nothing untracked or uncommitted that the tests could depend on; anything listed goes to the human before the checks run. `clean checkout` runs them in a throwaway worktree of the branch at `.claude/worktrees/ci-<branch>`, with dependencies installed from the lockfile, and removes it with `git worktree remove` once the checks finish, pass or fail. If a check fails, treat it like any other slice defect: send it back through coder (TDD) → verifier → human approval → a new commit, rather than patching it inline here. Once CI passes, invoke the `pr-description` skill to propose a PR title and description from the story's artifacts. For an earlier PR, scope it to that PR's slices and ticket. Invoke the `pr-platform` skill and resolve this repo's PR platform by its rules. State the result on one line: `PR platform: <platform> (<declared | detected>), gh <available | unavailable>`. If it resolves to GitHub with `gh` available, offer to create the PR directly with `gh pr create`; otherwise, present the title and description for the human to paste into their platform.
 5. If a release actually happened or a PR was actually opened, and a `tracking-config` project memory exists:
    - Update this story's row in the live tracker README per the `tracking` skill's workloop checkpoints.
    - If `Activity log: enabled`, append one activity-log entry (see the `activity-log` skill), domain-tagged, noting the release with its ref or the PR opened with its link, and referencing the story.

@@ -25,8 +25,8 @@ A project memory. Its existence means the project is tracked; with no memory, no
 applies. Resolve and create it per the Project Config Memory instructions in global
 `CLAUDE.md`. Fields:
 
-- **Tracking root:** the directory holding the unit directories and `archive/`. The stories root
-  is the `stories/` directory alongside it.
+- **Tracking root:** the directory holding the unit directories and `archive/`. Resolve the
+  stories root with the `story-location` skill.
 - **Cadence:** `sprint` or `release`.
 - **Sprint naming:** sprint cadence only. `date` (the sprint's start date, `YYYY-MM-DD`),
   `number` (`sprint-<n>`), or `ask` (a label given at each rollover, slugged for the directory).

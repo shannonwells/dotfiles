@@ -1,13 +1,21 @@
 EDITOR=vim
-PROMPT_COMMAND='echo -ne "\033]0;${USER}: ${PWD}\007"'
-PROMPT_BASE='%{\e[34m%}%m:%{\e[0;36m%}%1~ %{\e[35m%}$(parse_git_branch)%{\e[00m%}$(git config user.initials)%# %{\e[00m%} #'
+# do whatever it takes to ensure a color term. we're not animals.
+COLORTERM=true
+CLICOLOR=true
+autoload -U colors && colors
+
+# enable git branch autocompletion
+autoload -Uz compinit && compinit
+
+git_branch () { git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1 /'; }
+
+PROMPT="%F{green}%n@%mi%f %F{blue}%3~%f $(git_branch) "
 HISTCONTROL=ignoredups;
 setopt histappend;
 
 test -f $HOME/.aliases && source $HOME/.aliases
 
 export EDITOR HISTCONTROL PROMPT_COMMAND PS1 SUDO_PS1
-
 
 ps aux | grep -q 'ssh-agent' || eval "$(ssh-agent -s)"
 

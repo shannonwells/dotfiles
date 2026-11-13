@@ -113,10 +113,8 @@ From the **full story's** acceptance criteria, produce a manual UAT checklist th
 **Before presenting to the human**, write the Slice Plan and UAT Checklist to a file in the project so they survive context compaction and are in git history alongside the code.
 
 1. Derive a story slug from the story title: lowercase, words separated by hyphens, max 40 characters (e.g. `checkout-flow-redesign`)
-2. Write the full output (Slice Plan + UAT Checklist) to `docs/stories/<slug>/plan.md`
+2. Write the full output (Slice Plan + UAT Checklist) to `<stories root>/<slug>/plan.md`, using the story directory path you were given, or resolving the root with the `story-location` skill when none was given
 3. Create intermediate directories as needed
-
-If a `CLAUDE.md` exists and names a different docs location, use that instead. If you cannot determine the project root, write to `docs/stories/<slug>/plan.md` relative to the working directory.
 
 If the file already exists (re-run), overwrite it — the latest plan is authoritative.
 
@@ -141,4 +139,4 @@ If you encounter a situation your instructions don't cover well, or feel compell
 
 ## Orchestrator Responsibility
 
-After each slice is committed, the `/slice` command updates `docs/stories/<slug>/plan.md` automatically (see Step 4 in the slice command). The fields it writes are `**Status:**`, `**Commit:**`, and the AC checkboxes — which is why the plan template includes them pre-populated as `not started` / `—` / `- [ ]`. Do not remove these fields when authoring a plan.
+After each slice is committed, the `/slice` command updates `<stories root>/<slug>/plan.md` automatically (see Step 4 in the slice command). The fields it writes are `**Status:**`, `**Commit:**`, and the AC checkboxes — which is why the plan template includes them pre-populated as `not started` / `—` / `- [ ]`. Do not remove these fields when authoring a plan.

@@ -83,6 +83,7 @@ Remove duplication, improve naming, extract methods — in the new code and in a
 - Separate tests into unit tests, integration tests, and e2e (end-to-end) tests.
 - Use table tests (parametric tests) where appropriate
 - Abstract common functions into testing utilities as soon as more than one file needs them.
+- When a test file passes about 400–500 lines, split it along a natural concern line (for example results, failures, logging, integration), with helpers shared across the new files in one support class.
 
 ## For Bug Fixes:
 1. Write a regression test that reproduces the bug (it should fail)

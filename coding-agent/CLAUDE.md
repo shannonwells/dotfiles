@@ -26,7 +26,7 @@ For ANY file ANYWHERE, when a fact gets written for someone else to read later �
 - Skip justifying an absence nobody would suspect. If a structure list, checklist, or template doesn't include something, leave it out silently — don't add a bullet or paragraph explaining why it's not there.
 - Skip citing the PR/issue, date, or person that prompted a rule when writing it into a CLAUDE.md or similar guidance doc — state the rule as it holds now, not its provenance. This differs from a dated log entry (a recap, a tracker) where the date and source are themselves the fact being recorded.
 - Commit messages need only a short description of what changed, not the reasoning behind a decision. 
-- Use backticks in documents ONLY when referring to named items in actual code, such as enums, variables, or class names.
+- Use backticks in documents ONLY when referring to named items in actual code, such as enums, variables, or class names, or for paths and other text holding placeholders like `<slug>`, which Markdown won't render without them.
 
 ## Improve the Agents, Don't Work Around Them
 

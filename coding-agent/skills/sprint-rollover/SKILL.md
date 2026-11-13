@@ -24,8 +24,7 @@ fine" is a guess about an item's status, not a documented one.
 Generic — don't hardcode a path here. Resolve per the Project Config Memory instructions
 in global `CLAUDE.md`, reading the `tracking-config` project memory (fields defined in the
 `tracking` skill) for the **tracking root**, `Sprint naming`, `Sprint length`, `Activity log`,
-and `Demo tracking` fields. The **stories root** is the `stories/` directory alongside the
-tracking root.
+and `Demo tracking` fields. Resolve the **stories root** with the `story-location` skill.
 
 If `Cadence` is `release`, this skill doesn't apply. Run release close-out per the `tracking`
 skill instead.

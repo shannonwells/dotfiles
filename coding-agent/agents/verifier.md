@@ -110,6 +110,11 @@ diff was — don't let a quiet diff imply there's nothing here to check.
   new code path — not just whether the new clause does what's intended. A guard written
   for one trigger can silently misbehave once a second trigger is added alongside it
   without updating the state that guard assumes.
+- **Design-doc claims vs. resolved versions**: when the slice has an ADR or design doc,
+  check each claim it makes about library or framework behavior, or about what is on the
+  classpath, against the versions the build actually resolves (dependency tree or
+  lockfile, then the library's source or bytecode). Report each mismatch as a finding
+  against the doc, with the resolved version.
 
 ### 7. Consumption Tracing
 For any new or changed return value, response field, or computed output: confirm

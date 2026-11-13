@@ -17,17 +17,22 @@ done
 find "$HOME/.claude" -name '.gitkeep' -delete
 find "$HOME/.claude" -name '.DS_Store' -delete
 
-test "${SHELL}" == `which zsh` \
-    && echo "copying zsh dotfiles" \
-    &&  cp -f "$RCFILES/zshrc" "$HOME/.zshrc"  \
-    && cp -f "$RCFILES/zprofile" "$HOME/.zprofile" \
-test "${SHELL}" == `which bash` \
-    && echo "copying bash dotfiles" \
-    && cp -f "$RCFILES/bashrc" "$HOME/.bashrc"
+case $(basename $SHELL) in
+  zsh)
+    echo "copying zsh dotfiles" 
+    echo "source $HOME/.zprofile" >> $HOME/.zshrc
+
+    for file in $(ls $RCFILES/z*) ; do cp -f $file $HOME/".$(basename $file)" ; done
+    ;;
+  bash)
+    echo "copying bash dotfiles" \
+    cp -f "$RCFILES/bashrc" "$HOME/.bashrc"
+    ;;
+esac
 
 FILES="gitconfig aliases vimrc"
+echo "copying rest of dotfiles"
 for file in $FILES ; do
-  echo "copying rest of dotfiles"
   cp -f "$RCFILES/$file" "$HOME/.$file"
 done
 

@@ -55,7 +55,7 @@ Confirm the branch name and that the checkout succeeded before proceeding.
 
 Check for a `CLAUDE.md` at the project root. Read it and apply project-specific context — architecture patterns, code style, domain language — so your explanations are grounded in what this project expects.
 
-Check for a story plan at `docs/stories/*/plan.md`. If found, note the story name and its one-line summary — you'll surface it at the top of the review so the human has product context before the technical walk-through begins.
+Resolve the stories root with the `story-location` skill and check for a story plan at `<stories root>/*/plan.md`, excluding `archive/`. If found, note the story name and its one-line summary — you'll surface it at the top of the review so the human has product context before the technical walk-through begins.
 
 Invoke the `branching-model` skill and resolve the diff base by its rules — the nearest known ancestor among the repo's declared diff base and any release-pipeline branches, not a hardcoded `main`. State the result on one line before using it: `Diff base: <branch> (<source>)`, where the source is the repo's `CLAUDE.md`, the `workloop.integrationBranch` override, or the remote default. **Before using it, check whether HEAD itself is one of those declared branches** (trunk, integration branch, or any pipeline branch) rather than a feature branch cut from one — if so, this is likely a promotion or release audit, not a feature review. Say so and ask how to proceed instead of walking what could be a large, multi-PR diff as if it were one slice.
 
@@ -63,17 +63,29 @@ Run `git fetch origin <diff-base>` before computing the merge-base — a stale l
 
 Otherwise, run `git diff --stat $(git merge-base origin/<diff-base> HEAD)` and `git diff --name-only $(git merge-base origin/<diff-base> HEAD)` to understand the scope of changes.
 
+**Resuming a paused review.** Look for a saved-place doc, `review-state.md`, beside the story's `plan.md` (Owner Mode) or in `.claude/worktrees/pr-<number>/` (Reviewer Mode). If one exists, read it, recompute the fingerprint (Step 1) and compare it to the doc's baseline. If they match, reuse the doc's verifier report and decisions and resume at the step and group it names. If they differ, say so and ask whether to re-run the verifier or resume on the saved report. Tell the human which one you're doing in one line.
+
+## Pausing a Review
+
+When the human pauses the review, or the session must end before Step 4, write `review-state.md` to the location above, overwriting any earlier copy. It holds the mode, branch, HEAD, diff base, verifier baseline fingerprint, the verifier's pre-flight and findings by group, the groups with their status, every decision made so far (fix, defer, skip, with reasons), the fix-session file list, and the next step. Update it after each group's decisions while a review that has been paused once is still running. Delete it, after asking, once the commit (Owner Mode) or the posting (Reviewer Mode) is done.
+
+**Resuming a paused review.** Look for a saved-place doc, `review-state.md`, beside the story's `plan.md` (Owner Mode) or in `.claude/worktrees/pr-<number>/` (Reviewer Mode). If one exists, read it, recompute the fingerprint (Step 1) and compare it to the doc's baseline. If they match, reuse the doc's verifier report and decisions and resume at the step and group it names. If they differ, say so and ask whether to re-run the verifier or resume on the saved report. Tell the human which one you're doing in one line.
+
+## Pausing a Review
+
+When the human pauses the review, or the session must end before Step 4, write `review-state.md` to the location above, overwriting any earlier copy. It holds the mode, branch, HEAD, diff base, verifier baseline fingerprint, the verifier's pre-flight and findings by group, the groups with their status, every decision made so far (fix, defer, skip, with reasons), the fix-session file list, and the next step. Update it after each group's decisions while a review that has been paused once is still running. Delete it, after asking, once the commit (Owner Mode) or the posting (Reviewer Mode) is done.
+
 ## Step 1 — Verify
 
 Record the **verifier baseline** as a fingerprint of HEAD plus the working tree. This is used later to avoid redundant re-invocations:
 
 ```
-{ git rev-parse HEAD; git diff HEAD; git ls-files -o --exclude-standard; git ls-files -o --exclude-standard | xargs -r cat; } | shasum
+{ git rev-parse HEAD; git diff HEAD; git ls-files -o --exclude-standard; git ls-files -o --exclude-standard | xargs -r cat; } | git hash-object --stdin
 ```
 
-Invoke the **verifier** subagent to review code quality and verify correctness. Tell it which mode this is (Owner or Reviewer) — it phrases its Approval Status section differently depending on which.
+Invoke the **verifier** subagent to review code quality and verify correctness. Tell it which mode this is (Owner or Reviewer) — it phrases its Approval Status section differently depending on which. If a story plan was found, give it the plan's absolute path.
 
-- If acceptance criteria are available (passed as `$ARGUMENTS`, or findable in `docs/stories/<slug>/plan.md`), verify each criterion.
+- If acceptance criteria are available (passed as `$ARGUMENTS`, or findable in `<stories root>/<slug>/plan.md`), verify each criterion.
 - If no AC exists, skip the AC check and proceed to quality assessment only.
 
 After the verifier completes, open the review with story context (if found) and the pre-flight summary:
@@ -107,6 +119,8 @@ The verifier's full report — strengths, refactoring suggestions, and test cove
    > **Recommendation:** Fix now — [one-sentence reason]
    The label must be `fix now`, `defer`, or `skip`. Be direct: "Fix now — untested behavior in a TDD project is a blocker"; "Skip — cosmetic preference in a recovery-only path". Both `Remove — wrong` and `Remove — weak` comment-audit verdicts get `Fix now` — removing a comment is free, so there's no reason to defer or skip it. A `Keep` verdict needs no recommendation line; it's not a finding.
 
+   Three kinds of finding are fixed without asking: removing a unit test whose coverage other tests duplicate, removing a comment with a `Remove — weak` verdict or one that duplicates another comment or doc, and wrapping a line longer than the repo's line length. Show each in its group as usual, labeled `**Auto-fix:**` in place of a recommendation, and send them to the coder through Step 3 without waiting for the human's answer.
+
    Default to `fix now` for any finding on a line, function, or file this slice's diff already touches — the marginal cost is near zero, and work that gets deferred rarely gets picked up later on its own priority. `Defer` requires a concrete reason the fix is unsafe or disproportionate right now: a blast radius wider than this slice, a design decision that needs its own discussion, or a file this diff doesn't otherwise touch. "Not part of this ticket" alone doesn't qualify as a defer reason.
 
    **Reviewer Mode** — draft a proposed PR comment on its own line:
@@ -117,7 +131,7 @@ The verifier's full report — strengths, refactoring suggestions, and test cove
 
    For comment-audit findings specifically, Reviewer Mode disposition depends on the verdict. `Remove — wrong` always becomes a proposed comment (Suggestion or Blocker depending on how misleading the claim is) — a false comment is a correctness risk for whoever maintains that code next, regardless of who wrote it. `Remove — weak` does not become a proposed comment by default: note it happened and move on, since raising a stranger's stylistic nit costs them a round-trip for something with no functional effect. Track weak-comment counts across the whole review; if the same weakness recurs three or more times, raise one bundled `Suggestion` in Step 2c's consolidation instead of one `Nit` per instance. `Keep` needs no comment at all.
 
-9. **Owner Mode:** If any findings were surfaced (steps 5–7): ask "Want to fix any of these now, or continue?" Wait for an explicit answer — do not move on or start fixes without one. If the human calls out a fix, handle it immediately via Step 3 before proceeding to the next group. If the human pushes back on a `Keep` verdict specifically, that's not a fix request, it's a request to investigate: invoke the `comment-quality` skill and dig until the disposition resolves to one of removed, corrected, or identified tech debt (folds into Step 3b). This exploration is opt-in, triggered only by an explicit pushback — never run it automatically just because a comment was defended. If no findings: "Ready to move on?"
+9. **Owner Mode:** If any findings other than auto-fixes were surfaced (steps 5–7): ask "Want to fix any of these now, or continue?" Wait for an explicit answer — do not move on or start fixes without one. If the human calls out a fix, handle it immediately via Step 3 before proceeding to the next group. If the human pushes back on a `Keep` verdict specifically, that's not a fix request, it's a request to investigate: invoke the `comment-quality` skill and dig until the disposition resolves to one of removed, corrected, or identified tech debt (folds into Step 3b). This exploration is opt-in, triggered only by an explicit pushback — never run it automatically just because a comment was defended. If no findings: "Ready to move on?"
 
    **Reviewer Mode:** If any comments were proposed: ask "Do you agree with these, or any questions/concerns?" Use the answer to refine, merge, or drop drafts — this is not a posting decision, so don't frame it as one ("post", "approve", etc.). Findings may need rephrasing or grouping once later groups are in, so keep everything as drafts until Step 2c. Pushback on a `Keep` verdict triggers the same investigation described above, resolving to removed, corrected, or noted as tech debt — Reviewer Mode records no deferred findings of its own, so a tech-debt outcome here becomes a proposed comment instead. If no findings: "Ready to move on?"
 
@@ -163,7 +177,7 @@ If **no**: proceed to Step 3b.
 Before committing, settle where every deferred finding from this review goes.
 
 1. **Collect deferred findings.** Gather every finding from Step 2 (and any surfaced during the Fix Loop) whose final disposition is `defer` — recommended defer and left unfixed, or explicitly deferred by the human. Also include any comment-audit `Keep` verdict that, after pushback investigation (Step 2b), resolved to identified tech debt rather than removal or correction. Skip anything disposed as `fix now` (already handled above) or `skip` (not real debt, no record needed).
-2. **Record each one in the story.** Append it to this story's `docs/stories/<slug>/plan.md` under a `## Deferred findings` heading (create the heading if this is the first entry), with file and lines, a one-line issue, and why it's deferred: the concrete reason it's unsafe or disproportionate to fix now (blast radius wider than this slice, a design decision needing its own discussion, or a file outside this diff), never "not part of this ticket".
+2. **Record each one in the story.** Append it to this story's `<stories root>/<slug>/plan.md` under a `## Deferred findings` heading (create the heading if this is the first entry), with file and lines, a one-line issue, and why it's deferred: the concrete reason it's unsafe or disproportionate to fix now (blast radius wider than this slice, a design decision needing its own discussion, or a file outside this diff), never "not part of this ticket".
 3. **Ask where each one goes next.** Present the deferred findings together, one line each, and ask the human where each should go. Typical destinations: the backlog when the `tracking-config` memory sets `Backlog`, a debt file in the repo, a new ticket in the team's tracker, or nowhere beyond the plan. When a `debt-tracking-config` project memory names a usual destination, propose it as the default. Never write to a destination the human didn't choose. For a ticket, create it through an available tracker connector only on the human's go-ahead; otherwise present a title and description as paste-ready text.
 4. **Resolved items.** If a fix made during this review resolves something already recorded in the backlog or a debt file, point it out and ask whether to remove or close it.
 

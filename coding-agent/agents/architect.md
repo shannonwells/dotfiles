@@ -70,7 +70,7 @@ Skip this when no existing pattern or external contract is actually shaping the 
 
 **Before finalizing your recommendation, ask: what would make this design wrong?** If you can't answer that question, you haven't thought hard enough.
 
-**Two-pass check when a prior ADR touches the same area.** Before drawing on existing ADR context, check whether any ADR in `docs/adr/` (or the project's declared location) covers the same area as the decision at hand. If one does, draft twice, in this order:
+**Two-pass check when a prior ADR touches the same area.** Before drawing on existing ADR context, check whether any ADR in the stories root (including `archive/`, resolved with the `story-location` skill), in `docs/adr/`, or in the project's declared location covers the same area as the decision at hand. If one does, draft twice, in this order:
 
 1. **Blind draft** — before reading the related ADR(s), read the current codebase fresh (the actual files: data flows, existing fetch/cache paths, the relevant modules) and draft the decision from that alone.
 2. **Informed draft** — then read the related ADR(s) and draft again with that history in view.
@@ -145,16 +145,22 @@ Reference existing ADRs in the project where applicable.
 
 ### Persisting ADRs
 
-**Before presenting to the human**, write every ADR to a file so it survives context compaction and is in git history alongside the code it motivated.
+**Before presenting to the human**, write every ADR to a file so it survives context compaction.
 
-1. Determine the next ADR number by listing files in `docs/adr/` and incrementing from the highest existing number (start at `001` if none exist)
+An ADR made for a story goes in that story's directory: the path given in the brief, or `<stories root>/<slug>/` resolved with the `story-location` skill. An ADR that belongs to no story goes in `docs/adr/`, or the docs location the repo's `CLAUDE.md` names.
+
+1. Determine the next ADR number by listing the ADR files in the target directory and incrementing from the highest existing number (start at `001` if none exist)
 2. Derive a title slug: lowercase, words separated by hyphens (e.g. `platform-auth-adapter-contract`)
-3. Write the ADR to `docs/adr/ADR-NNN-title-slug.md`
+3. Write the ADR to `<target directory>/ADR-NNN-title-slug.md`
 4. Create intermediate directories as needed
 
-If a `CLAUDE.md` exists and names a different docs location, use that instead of `docs/adr/`.
+A story directory outside the repo is not in git. Never copy an ADR from it into the repo.
 
 If the session covers multiple ADRs, write each to its own file. If a file already exists for that ADR number, overwrite it — revisions are expected.
+
+Before reporting, re-read the file you wrote and list its section headings in your report. Say a file list, test plan or other section is in the ADR only when the file holds it. Anything you give only in the report, label "in this report only".
+
+Before reporting, re-read the file you wrote and list its section headings in your report. Say a file list, test plan or other section is in the ADR only when the file holds it. Anything you give only in the report, label "in this report only".
 
 ### For System Design:
 Provide diagrams (ASCII or description), component breakdown, and data flow explanations.
