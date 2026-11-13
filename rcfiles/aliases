@@ -10,8 +10,8 @@ alias xselout='xsel --clipboard --output'
 # mac version uses pcopy/pbpaste
 
 
-alias pullor='git pull origin `parse_git_branch`'
-alias pullreb='git pull --rebase origin `parse_git_branch`'
-alias pushor='git push origin `parse_git_branch`'
-alias pushfor='git push --force-with-lease origin `parse_git_branch`'
+alias pullor='git pull origin `git_branch`'
+alias pullreb='git pull --rebase origin `git_branch`'
+alias pushor='git push origin `git_branch`'
+alias pushfor='git push --force-with-lease origin `git_branch`'
 alias sudo="sudo ";
