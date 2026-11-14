@@ -8,14 +8,15 @@ COPY="cp -n"
 
 while getopts "fh" opt; do
     case $opt in 
-        h) 
+        f) 
+            COPY="cp -f"
+            echo "existing files will be clobbered."
+            ;;
+        *)
             echo "Usage: $0 [-h] [-f] "
             echo "-h - print this message" 
             echo "-f - clobber existing files"
-            ;;
-        -f) 
-            COPY="cp -f"
-            echo "existing files will be clobbered."
+            exit 0
             ;;
     esac
 done
@@ -35,7 +36,8 @@ find "$HOME/.claude" -name '.DS_Store' -delete
 case $(basename $SHELL) in
   zsh)
     echo "copying zsh dotfiles" 
-    echo "source $HOME/.zprofile" >> $HOME/.zshrc
+    grep -qxf "source $HOME/.zprofile" "$HOME/.zshrc" 2>/dev/null \
+        || echo "source $HOME/.zprofile" >> $HOME/.zshrc
 
     for file in $(ls $RCFILES/z*) ; do $COPY $file $HOME/".$(basename $file)" ; done
     ;;
