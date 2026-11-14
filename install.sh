@@ -36,7 +36,7 @@ find "$HOME/.claude" -name '.DS_Store' -delete
 case $(basename $SHELL) in
   zsh)
     echo "copying zsh dotfiles" 
-    grep -qxf "source $HOME/.zprofile" "$HOME/.zshrc" 2>/dev/null \
+    grep -qxF "source $HOME/.zprofile" "$HOME/.zshrc" 2>/dev/null \
         || echo "source $HOME/.zprofile" >> $HOME/.zshrc
 
     for file in $(ls $RCFILES/z*) ; do $COPY $file $HOME/".$(basename $file)" ; done
