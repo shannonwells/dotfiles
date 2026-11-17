@@ -64,6 +64,9 @@ Implement the minimal code to pass the tests. Run the test suite — should **pa
 ### 3. REFACTOR: Clean Up
 Remove duplication, improve naming, extract methods — in the new code and in any existing code nearby that your change touches. Keep tests **green**.
 
+### 4. FORMAT
+If the project's `CLAUDE.md` has a `## Format` section with an `Apply:` command, run it from the repo root after the last refactor. Never format by hand what the command formats. If it fails, stop and report its output.
+
 ---
 
 ## Implementation Guidelines

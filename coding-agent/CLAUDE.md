@@ -47,6 +47,10 @@ When you see memory that describes agent behavior or workflow process, stop and 
 
 **The test:** Before writing any memory or inline instruction about the workloop, ask yourself: *Is this describing a gap in an agent file?* If yes, flag it to the human (me) instead.
 
+## Subagent Prompts
+
+A subagent prompt holds the goal, the facts the subagent can't find cheaply, the ways the task departs from its defaults, and pointers to files. Leave out what its agent file or CLAUDE.md already says. The built-in Explore and Plan agents load no CLAUDE.md, so give them any rule they need. When we've agreed on points, pass the points and let the subagent write the text.
+
 ## Git Conventions
 
 A repo's base branch, release pipeline, branch naming, and PR platform are declared in its own `CLAUDE.md` under `## Branching` and `## PR Platform`. Resolve them with the `branching-model` and `pr-platform` skills instead of assuming `main` or GitHub.

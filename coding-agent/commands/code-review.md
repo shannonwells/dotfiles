@@ -69,13 +69,9 @@ Otherwise, run `git diff --stat $(git merge-base origin/<diff-base> HEAD)` and `
 
 When the human pauses the review, or the session must end before Step 4, write `review-state.md` to the location above, overwriting any earlier copy. It holds the mode, branch, HEAD, diff base, verifier baseline fingerprint, the verifier's pre-flight and findings by group, the groups with their status, every decision made so far (fix, defer, skip, with reasons), the fix-session file list, and the next step. Update it after each group's decisions while a review that has been paused once is still running. Delete it, after asking, once the commit (Owner Mode) or the posting (Reviewer Mode) is done.
 
-**Resuming a paused review.** Look for a saved-place doc, `review-state.md`, beside the story's `plan.md` (Owner Mode) or in `.claude/worktrees/pr-<number>/` (Reviewer Mode). If one exists, read it, recompute the fingerprint (Step 1) and compare it to the doc's baseline. If they match, reuse the doc's verifier report and decisions and resume at the step and group it names. If they differ, say so and ask whether to re-run the verifier or resume on the saved report. Tell the human which one you're doing in one line.
-
-## Pausing a Review
-
-When the human pauses the review, or the session must end before Step 4, write `review-state.md` to the location above, overwriting any earlier copy. It holds the mode, branch, HEAD, diff base, verifier baseline fingerprint, the verifier's pre-flight and findings by group, the groups with their status, every decision made so far (fix, defer, skip, with reasons), the fix-session file list, and the next step. Update it after each group's decisions while a review that has been paused once is still running. Delete it, after asking, once the commit (Owner Mode) or the posting (Reviewer Mode) is done.
-
 ## Step 1 — Verify
+
+**Owner Mode only:** if the project's `CLAUDE.md` has a `## Format` section with an `Apply:` command, run it from the repo root before recording the baseline. If it changed any files, list them in one line (`Formatted: <files>`). If it fails, stop and show the human its output. With no `## Format` section, skip this silently.
 
 Record the **verifier baseline** as a fingerprint of HEAD plus the working tree. This is used later to avoid redundant re-invocations:
 
@@ -166,7 +162,7 @@ Once all requested fixes are done, ask:
 
 > "Want a clean pass before committing?"
 
-If **yes**: recompute the fingerprint and compare it to the verifier baseline from Step 1. If it is unchanged (no commits and no working-tree edits since the last verifier run), the full verifier report is still valid — skip re-invoking the verifier and proceed directly to the targeted re-walk below. If it changed, re-invoke the **verifier** subagent, passing it the list of files changed during this fix session and instructing it to focus its scan on those files for regressions and new issues; for all other files, only surface findings not previously addressed. The Comment Audit still covers every comment in scope across the whole diff, not only the fix-session files. Update the verifier baseline.
+If **yes**: in Owner Mode, run the `## Format` apply command first, as in Step 1. Then recompute the fingerprint and compare it to the verifier baseline from Step 1. If it is unchanged (no commits and no working-tree edits since the last verifier run), the full verifier report is still valid — skip re-invoking the verifier and proceed directly to the targeted re-walk below. If it changed, re-invoke the **verifier** subagent, passing it the list of files changed during this fix session and instructing it to focus its scan on those files for regressions and new issues; for all other files, only surface findings not previously addressed. The Comment Audit still covers every comment in scope across the whole diff, not only the fix-session files. Update the verifier baseline.
 
 Either way, walk through the files changed during this fix session using the same per-group format from Step 2 (show code, explain, surface verifier findings, give recommendations). If new issues come up, go through the per-group decision point and fix as needed, then offer another clean pass. Repeat until the human is satisfied or declines.
 

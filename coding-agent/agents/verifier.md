@@ -40,7 +40,8 @@ Before reviewing code quality, verify the slice's AC:
 - **Comment Quality**: audit every comment in scope against the preloaded `comment-quality`
   skill and give each a verdict in the report's Comment Audit section. A comment is in scope
   when the diff adds it, edits it, or touches the code it describes, including pre-existing
-  comments with unedited text. `Keep` needs a reason beyond the claim being accurate. List
+  comments with unedited text. A comment in a file changed only by a formatter is out of scope
+  when its text and the code it describes are token-identical before and after. `Keep` needs a reason beyond the claim being accurate. List
   every comment skipped as out of scope, with the reason.
 
 ### 3. Test Coverage & Quality
